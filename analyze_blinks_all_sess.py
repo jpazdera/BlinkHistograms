@@ -35,6 +35,7 @@ def detect_blinks(subj, exp, sys='EGI', sample_rate=500):
 
     pres_count = 0
     blink_count = np.zeros(dur)
+    cumul_br = np.zeros(dur)
     # beginning_blink_counts = np.zeros(dur)
     # no_beginning_blink_counts = np.zeros(dur)
 
@@ -42,7 +43,7 @@ def detect_blinks(subj, exp, sys='EGI', sample_rate=500):
     beginning_period_dur2 = 200 * sample_rate / 1000
     beginning_period_dur3 = 300 * sample_rate / 1000
     blink_rate = 0
-    blink_rate_1= 0
+    blink_rate_1 = 0
     blink_rate_2 = 0
     blink_rate_3 = 0
 
@@ -87,6 +88,8 @@ def detect_blinks(subj, exp, sys='EGI', sample_rate=500):
 
                 if np.any(ev_blink[:stim_off_time]):
                     blink_rate += 1
+                    first_blink_ind = np.where(ev_blink == 1)[0][0]
+                    cumul_br[first_blink_ind:] += 1
                     if np.any(ev_blink[beginning_period_dur1:stim_off_time]):
                         blink_rate_1 += 1
                     if np.any(ev_blink[beginning_period_dur2:stim_off_time]):
@@ -106,12 +109,14 @@ def detect_blinks(subj, exp, sys='EGI', sample_rate=500):
         blink_rate_1 /= float(pres_count)
         blink_rate_2 /= float(pres_count)
         blink_rate_3 /= float(pres_count)
+        cumul_br = cumul_br / float(pres_count) * 100
     else:
         blink_rate = -999
         blink_rate1 = -999
         blink_rate2 = -999
         blink_rate3 = -999
-    return blink_count, pres_count, blink_rate, blink_rate_1, blink_rate_2, blink_rate_3
+        cumul_br = -999
+    return blink_count, pres_count, blink_rate, blink_rate_1, blink_rate_2, blink_rate_3, cumul_br
 
 def find_blinks(data, thresh):
     """
@@ -181,10 +186,10 @@ def butter_filt(data, freq_range, sample_rate=500, filt_type='bandstop', order=4
     return data
 
 if __name__ == "__main__":
-    subj = 'LTP249'  # raw_input('Enter subject ID: ')
+    subj = 'LTP068'  # raw_input('Enter subject ID: ')
     exp = 'ltpFR'  # raw_input('Enter experiment name: ')
     sys = 'EGI'
-    blink_count, pres_count, br, br1, br2, br3 = detect_blinks(subj, exp, sys=sys)
+    blink_count, pres_count, br, br1, br2, br3, cbr = detect_blinks(subj, exp, sys=sys)
 
     json = {}
     json['pres_count'] = pres_count
@@ -193,9 +198,11 @@ if __name__ == "__main__":
     json['blink_rate_1'] = br1
     json['blink_rate_2'] = br2
     json['blink_rate_3'] = br3
+    json['cumul_br'] = cbr.tolist()
 
     outfile = '/Users/jessepazdera/Desktop/Blink Stats/blink_count_%s.json' % subj
     with open(outfile, 'w') as f:
         js.dump(json, f)
     plt.plot(blink_count/pres_count*100)
+    plt.plot(cbr)
     plt.show()
