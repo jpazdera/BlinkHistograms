@@ -7,7 +7,7 @@ import matplotlib.backends.backend_pdf
 import json
 import traceback
 
-subjs = glob.glob('/Users/jessepazdera/rhino_mount/data/eeg/scalp/ltp/ltpFR/behavioral/events/events_fr_LTP*.mat')
+subjs = glob.glob('/Users/jessepazdera/rhino_mount/data/eeg/scalp/ltp/ltpFR/behavioral/events/events_fr_LTP339.mat')
 low = []
 
 try:
@@ -44,21 +44,21 @@ for s in subjs:
 
         plt.figure(facecolor='white')
         plt.subplot(311)
-        plt.hist(blink_trials.artifactMS, range(0, 4401, 40), color='b', normed=True)
+        plt.hist(blink_trials.artifactMS, range(0, 4401, 40), color='b', normed=False)
         plt.axvline(3000, color='k', linewidth=2)
         plt.title(snum + ' (' + str(int(blink_rate*100)) + '%) - Blink Onset Time')
         plt.xlabel('MS after word onset')
         plt.ylabel('Frequency')
 
         plt.subplot(312)
-        plt.hist(blink_trials.artifactMeanMS, range(0, 4401, 40), color='r', normed=True)
+        plt.hist(blink_trials.artifactMeanMS, range(0, 4401, 40), color='r', normed=False)
         plt.axvline(3000, color='k', linewidth=2)
         plt.title('Avg Time of Blink Samples')
         plt.xlabel('MS after word onset')
         plt.ylabel('Frequency')
 
         plt.subplot(313)
-        hist3 = plt.hist(blink_trials.artifactFrac * 100, range(0, 101, 1), color='g', normed=True)
+        hist3 = plt.hist(blink_trials.artifactFrac * 100, range(0, 101, 1), color='g', normed=False)
         plt.title('Percent of Samps w/Blinks')
         plt.xlabel('Percent')
         plt.ylabel('Frequency')
